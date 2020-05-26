@@ -1,20 +1,21 @@
-# use a node base image
-FROM node:10
+# My first docker file.
+ FROM node:11-alpine
+ MAINTAINER Shubham Kumar (XXXXXX@gmail.com)
 
-WORKDIR /usr/src/app
+ # RUN commands inside BASE IMAGE
+RUN mkdir -p /var/www 
+RUN apk add --no-cache git
+RUN apk add --no-cache openssh
 
-COPY package*.json ./
+#CLONE git repo inside BASE IMAGE
+RUN git clone https://github.com/Amitesh591/news_aggregator_system.git /myapp/
 
+#COPY cloned repo inside BASE IMAGE to another directory at BASE IMAGE
+RUN cp -R /myapp/* /var/www
+
+RUN echo "Tryin to build demo application"
+# COPY . /var/www 
+WORKDIR /var/www
 RUN npm install
-COPY . .
 
-
-
-# set a health check
-HEALTHCHECK --interval=5s \
-            --timeout=5s \
-            CMD curl -f http://192.168.0.3:3000 || exit 1
-
-# tell docker what port to expose
-EXPOSE 3000
-CMD ["node" , "app.js"]
+ENTRYPOINT ["npm","start"]
